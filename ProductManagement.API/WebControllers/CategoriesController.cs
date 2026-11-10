@@ -7,25 +7,16 @@ namespace ProductManagement.API.WebControllers
     [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
     {
-        private static List<Category> categories = new List<Category>
-        {
-            new Category { Id = 1, Name = "Akcesoria komputerowe", Description = "Akcesoria do komputerów i laptopów" },
-            new Category { Id = 2, Name = "Audio", Description = "Sprzęt audio, słuchawki i głośniki" },
-            new Category { Id = 3, Name = "Podzespoły komputerowe", Description = "Komponenty do komputerów stacjonarnych" },
-            new Category { Id = 4, Name = "Meble biurowe", Description = "Meble i wyposażenie stanowiska pracy" },
-            new Category { Id = 5, Name = "Urządzenia peryferyjne", Description = "Urządzenia podłączane do komputera" }
-        };
-
         [HttpGet]
         public List<Category> GetCategory()
         {
-            return categories;
+            return DataStore.Categories;
         }
 
         [HttpGet("{id}")]
         public IActionResult GetCategoryByID(int Id)
         {
-            Category category = categories.FirstOrDefault(c => c.Id == Id);
+            Category category = DataStore.Categories.FirstOrDefault(c => c.Id == Id);
 
             if(category == null)
             {
@@ -37,7 +28,7 @@ namespace ProductManagement.API.WebControllers
         [HttpGet("search")]
         public IActionResult GetCategoryByName(string Name)
         {
-            Category category = categories.FirstOrDefault(c => c.Name == Name);
+            Category category = DataStore.Categories.FirstOrDefault(c => c.Name == Name);
 
             if (category == null)
             {
@@ -49,7 +40,16 @@ namespace ProductManagement.API.WebControllers
         [HttpPost]
         public IActionResult AddCategory(Category category)
         {
-            categories.Add(category);
+            var CategoryAddId = DataStore.Categories
+                .Select(p => p.Id)
+                .DefaultIfEmpty(0)
+                .Max();
+
+            CategoryAddId += 1;
+
+            category.Id = CategoryAddId;
+
+            DataStore.Categories.Add(category);
 
             return CreatedAtAction
                 (
@@ -62,14 +62,14 @@ namespace ProductManagement.API.WebControllers
         [HttpDelete("{Id}")]
         public IActionResult DeleteCategory(int Id)
         {
-            Category category = categories.FirstOrDefault(c => c.Id == Id);
+            Category category = DataStore.Categories.FirstOrDefault(c => c.Id == Id);
 
             if(category == null)
             {
                 return NotFound();
             }
 
-            categories.Remove(category);
+            DataStore.Categories.Remove(category);
 
             return NoContent();
         }
@@ -77,7 +77,7 @@ namespace ProductManagement.API.WebControllers
         [HttpPut("{Id}")]
         public IActionResult UpdateCategory(int Id, Category UpdatedCategory)
         {
-            Category category = categories.FirstOrDefault(c => c.Id == Id);
+            Category category = DataStore.Categories.FirstOrDefault(c => c.Id == Id);
 
             if(category == null)
             {

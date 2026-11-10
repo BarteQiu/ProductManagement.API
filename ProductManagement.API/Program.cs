@@ -8,6 +8,8 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+DataStore.InitializeRelationships();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
